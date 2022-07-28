@@ -5,9 +5,54 @@ library(dplyr)
 library(survival)
 
 load(file="CXO.Rdata")
+dperiods <- cases %>% 
+  group_by(Id) %>%
+  mutate(case_period = Event == 1,
+         control_period = Event !=1, 
+         c1=as.numeric(ex==1 & case_period) #exposed case period
+         ) %>%  
+  summarise(c1=max(c1),
+            c0=1-c1, #unexposed case period
+            PT10 = ifelse(c1==1, sum((1-ex)*control_period),0),  #number of unexposed control periods per person
+            PT01 = ifelse(c1==0, sum(ex*control_period),0),  #number of unexposed control periods per persons
+            # 
+         ) %>%  
+  ungroup()
+
+dsumm <- dperiods %>%
+  mutate(a1=sum(c1), #number of exposed case periods
+         a0=sum(c0))  # numer of unexposed case periods
 
 
-
+# *PT10 is the number of unexposed control periods of the exposed case;
+# *PT01 is the number of exposed control period of the unexposed case;
+# PT10=IFN(c0=1 and c1=0, 1, 0)+IFN(c0=1 and c2=0, 1, 0);
+# PT01=IFN(c0=0 and c1=1, 1, 0)+IFN(c0=0 and c2=1, 1, 0);
+# *PT0CXO is the number of unexposed (case or control) periods;
+# *PT1CXO is the number of exposed (case or control) periods;
+# PT0CXO=(1-c0)+(1-c1)+(1-c2);
+# PT1CXO=c0+c1+c2;
+# dummy=1;
+# data dpai; set dcase; retain a0 0 a1 0 PT10m 0 PT01m 0;
+# PT01m=PT01m+PT01;
+# PT10m=PT10m+PT10;
+# a1=a1+c0;
+# a0=a0+(1-c0);
+# data dperiods; merge dcase(in=ina) dpai(in=inb); by dummy; if ina=1 and inb=1;
+# data dperiods(drop=dummy); set dperiods; 
+# *1 record is 1 period;
+# *w0 and w1 are the weight per 1 unexposed and 1 exposed period, respectively, for the Greenland likelihood;
+# w0=pai00/PT0CXO; 
+# w1=pai10/PT1CXO; 
+# *ww0 and ww1 are the weight per 1 unexposed and 1 exposed period, respectively, for the Vines and Farrington likelihood;
+# ww0=ww0/PT0CXO;
+# ww1=ww1/PT1CXO;
+# data dperiods; set dperiods;
+# case=1; ex=IFN(c0=1,1,0); wt=IFN(c0=1, w1, w0);wtv=IFN(c0=1, ww1, ww0); output;
+# case=0; ex=IFN(c1=1,1,0); wt=IFN(c1=1, w1, w0);wtv=IFN(c1=1, ww1, ww0); output;
+# case=0; ex=IFN(c2=1,1,0); wt=IFN(c2=1, w1, w0);wtv=IFN(c2=1, ww1, ww0); output;
+# data dperiods; set dperiods; lw=log(wt); lwv=log(wtv);
+# *d1 the information for the population;
 # proc logistic data=dperiods descending ; model case=ex / offset=lw; strata id; 
 # ods output parameterestimates=d41 oddsratios=d42;
 
