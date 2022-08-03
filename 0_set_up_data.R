@@ -83,3 +83,48 @@ mhor(formula = Event ~ Id/ex, data=cases)
 # data dcontrol; set dcontrol; case=0;
 # run;
 # %mend select_control;
+
+rm(list=ls())
+library(dplyr)
+library(survival)
+library(pubh)
+
+load(file="drugdata.rds")  #drugdata from the WCE package
+source("CXO_funcs.R")
+
+drugdata <- drugdata %>%
+  group_by(Id) %>%
+  mutate(futime=max(Stop),
+         ex=as.numeric(dose > 0)) %>%
+  ungroup()
+
+
+caseids <- drugdata %>% 
+  filter(Event == 1) 
+
+caseids <- caseids %>%
+  select(Id) %>%
+  left_join(drugdata, by="Id")
+
+
+##create a CXO study with 90 day time window
+
+fu = 90
+
+timecontrols <- drugdata %>%
+  filter(futime >= fu)
+
+cases <- caseids %>%
+  filter(futime >= fu) %>%
+  group_by(Id) %>%
+  mutate(minex=min(ex), maxex=max(ex),
+         concordant = minex==maxex,
+         day=Stop-futime+fu,
+         wt=1) %>%
+  filter(!concordant, day>0) %>%
+  ungroup()
+
+
+save(drugdata, cases, file="CXO.Rdata")
+
+
