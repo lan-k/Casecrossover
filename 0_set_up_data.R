@@ -4,6 +4,7 @@ library(survival)
 library(pubh)
 
 load(file="drugdata.rds")  #drugdata from the WCE package
+source("CXO_funcs.R")
 
 drugdata <- drugdata %>%
   group_by(Id) %>%
@@ -47,31 +48,9 @@ exp(cbind(coef(cfit), confint(cfit)))
 
 ## M-H estimate
 
-mhor <- function(formula, data, digits=2)  {
-    #formula is Outcome ~ strata/exposure
 
-  dformat <- paste('%.', digits, 'f', sep='')
-  vars <- all.vars(formula)
-  outcome <- vars[1]
-  exposure <- vars[3]
-  stratum <- vars[2]
-  mht <- mantelhaen.test(data[[outcome]], data[[exposure]], 
-                         data[[stratum]])
-  res <- data.frame(sprintf(dformat,round(mht$estimate[[1]], digits)), 
-                    sprintf(dformat,round(mht$conf.int[1], digits)), 
-                    sprintf(dformat,round(mht$conf.int[2], digits)),
-                    format.pval(mht$p.value, digits=2, eps=0.001))
-  
-  names(res) <- c("Common OR", "Lower CI", "Upper CI", "Pr(>|z|)")
-  rownames(res) <- c()
-  
-  return(res)
-}
+mhor(formula = Event ~ Id/ex, data=cases) 
 
-
-
-mh <- mhor(formula = Event ~ Id/ex, data=cases) 
-mh
 
 ##case-time-control study with 90 day time window
 # %macro select_control();
