@@ -101,4 +101,3 @@ SCL_bias <- function(data, exposure, event, Id) {
   
 }
 
-
