@@ -1,7 +1,7 @@
 %macro CXO_wt(data, exposure, event, Id);
 *calculation of weights (w0 and w1) for binary exposure data;
 **case-crossover study only with no time controls;
-**data is the dataset; expsoure is the binary exposure variable;
+**data is the dataset; exposure is the binary exposure variable;
 **event is the outcome (=1 for case-crossover study), Id is the patient Id;
 
 
