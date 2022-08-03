@@ -60,7 +60,7 @@ mhor <- function(formula, data, digits=2)  {
   res <- data.frame(sprintf(dformat,round(mht$estimate[[1]], digits)), 
                     sprintf(dformat,round(mht$conf.int[1], digits)), 
                     sprintf(dformat,round(mht$conf.int[2], digits)),
-                    round_pval(mht$p.value))
+                    format.pval(mht$p.value, digits=2, eps=0.001))
   
   names(res) <- c("Common OR", "Lower CI", "Upper CI", "Pr(>|z|)")
   rownames(res) <- c()
@@ -71,6 +71,7 @@ mhor <- function(formula, data, digits=2)  {
 
 
 mh <- mhor(formula = Event ~ Id/ex, data=cases) 
+mh
 
 ##case-time-control study with 90 day time window
 # %macro select_control();
