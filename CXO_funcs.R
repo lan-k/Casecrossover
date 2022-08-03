@@ -1,4 +1,4 @@
-3###CXO functions
+###CXO functions
 
 CXO_wt <- function(data, exposure, event, Id) {
   cases <- data %>% 
