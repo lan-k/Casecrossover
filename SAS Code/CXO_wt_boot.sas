@@ -53,9 +53,7 @@ Proc surveyselect data=pt out=pt_boots
 run;
 *pt_bs has bootstrapped replicates;
 
-proc sort data=pt_boots out=pt_bs nodupkey; 
-	by Replicate PtID NumberHits; 
-run;
+
 
 *initialise bootstrapped OR estimates;
 data est_boot;
@@ -68,9 +66,9 @@ run;
 		
 	run;
 	**create new ID to account for patients who are sampled more than once;
-	data id(keep = PtID id);
+	data id(keep = PtID newid);
 		set pt_bs(where=(case Eq 1));
-		id = _N_;
+		newid = _N_;
 	run;
 	
 	data pt_bs;
@@ -78,7 +76,7 @@ run;
 		by PtID;
 	run;
 
-	%CXO_wt(pt_bs, exposure=e, event=case, Id=id);
+	%CXO_wt(pt_bs, exposure=e, event=case, Id=newid);
 	
 	data est_CXO;
 		set est_CXO(keep=Variable OR_G rename=(OR_G = OR_G_bs);
