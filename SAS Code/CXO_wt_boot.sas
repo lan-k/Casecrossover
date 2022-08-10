@@ -67,8 +67,8 @@ run;
 		set pt_boots(where=(replicate EQ i));
 		
 	run;
-	**create new ID to account for patients who are sampled mopre than once;
-	data id(keep = PtID id;
+	**create new ID to account for patients who are sampled more than once;
+	data id(keep = PtID id);
 		set pt_bs(where=(case Eq 1));
 		id = _N_;
 	run;
@@ -99,7 +99,8 @@ run;
 proc univariate data=est_boot noprint; 
 	var OR_G_bs; 
 	by Variable;
-	output out=est_CXO_boot n=n nobs=nobs pctlpts=2.5, 50, 97.5 pctlpre=OR_G;
+	output out=est_CXO_boot n=n nobs=nobs pctlpts=50 2.5 97.5 
+			pctlpre=OR_G pctlname = _est _L _U;
 run;
 **est_CXO_boot contains the estimates for weighted CL;
 
