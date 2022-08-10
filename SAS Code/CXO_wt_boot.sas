@@ -1,4 +1,4 @@
-%macro CXO_wt(data, exposure, event, Id, B=1000);
+%macro CXO_wt_boot(data, exposure, event, Id, B=1000);
 *calculation of weights (w0 and w1) for binary exposure data;
 **case-crossover study only with no time controls;
 **data is the dataset; 
@@ -40,18 +40,26 @@ data pt;
 	
 	dummy=1;
 run;
+
+
+**create dataset of Ids for resampling;
+data id(keep=PtID);
+	set pt;
+	by PtID;
+	if last.PtID then output;
+run;
 	
 
 *** bootstrapped standard errors;
 
-Proc surveyselect data=pt out=pt_boots
+Proc surveyselect data=id out=pt_boots
 	Seed=4321
 	Method=urs
 	Samprate=1
 	outhits
 	Rep=&B.;
 run;
-*pt_bs has bootstrapped replicates;
+*pt_bs has bootstrapped replicates of ids;
 
 
 
@@ -61,19 +69,23 @@ run;
 
 **calculate weighted OR for every bootstrapped replicate;
 %for i = 1 to &B.;
-	data pt_bs;
+
+    **create new ID to account for patients who are sampled more than once;
+	data pt_bs(keep=PtID newid);
 		set pt_boots(where=(replicate EQ i));
 		
-	run;
-	**create new ID to account for patients who are sampled more than once;
-	data id(keep = PtID newid);
-		set pt_bs(where=(case Eq 1));
 		newid = _N_;
+		
+	run;
+	
+	proc sort data = pt_bs;
+		by PtID;
 	run;
 	
 	data pt_bs;
-		merge pt_bs(in=a) id(in=b);
+		merge pt_bs(in=a) pt(in=b);
 		by PtID;
+		if a;
 	run;
 
 	%CXO_wt(pt_bs, exposure=e, event=case, Id=newid);
@@ -103,4 +115,4 @@ run;
 **est_CXO_boot contains the estimates for weighted CL;
 
 
-%mend CXO_wt;
+%mend CXO_wt_boot;
