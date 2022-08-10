@@ -65,9 +65,20 @@ run;
 %for i = 1 to &B.;
 	data pt_bs;
 		set pt_boots(where=(replicate EQ i));
+		
+	run;
+	**create new ID to account for patients who are sampled mopre than once;
+	data id(keep = PtID id;
+		set pt_bs(where=(case Eq 1));
+		id = _N_;
+	run;
+	
+	data pt_bs;
+		merge pt_bs(in=a) id(in=b);
+		by PtID;
 	run;
 
-	%CXO_wt(pt_bs, exposure=e, event=case, Id=PtID);
+	%CXO_wt(pt_bs, exposure=e, event=case, Id=id);
 	
 	data est_CXO;
 		set est_CXO(keep=Variable OR_G rename=(OR_G = OR_G_bs);
