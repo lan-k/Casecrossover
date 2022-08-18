@@ -37,7 +37,7 @@ CXO_wt <- function(data, exposure, event, Id) {
            pi00=1,
            pi10=PT01m/PT10m,
            w0=pi00/PT0CXO,
-           w1=pi10/PT1CXO,) %>%
+           w1=pi10/PT1CXO) %>%
     ungroup()
   
   cases_wt <- left_join(cases, dperiods %>% select(Id,w0,w1), by="Id") %>% # number of unexposed case periods

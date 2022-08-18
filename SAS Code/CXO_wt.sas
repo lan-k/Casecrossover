@@ -1,10 +1,10 @@
-%macro CXO_wt(data, exposure, event, Id);
+%macro CXO_wt(data, exposure, event, Id, out=out);
 *calculation of weights (w0 and w1) for binary exposure data;
 **case-crossover study only with no time controls;
-**data is the dataset; 
-**exposure is the binary exposure variable;
+**data is the dataset, assumed to be in long format with one row per Id per period; 
+**exposure is the binary exposure variable ;
 **event is the outcome (=1 for case-crossover study), Id is the patient Id;
-
+** the case period is assumed to to be the last period per id indicated by event=1 for CXO studies (without time controls);
 
 data d17;
 	set &data.;
@@ -124,15 +124,15 @@ proc logistic data=d25 descending;
 run;
 
 
-**dataset est_CXO contains the weighted odds ratios;
-data est_CXO(keep=variable CL_est CL_SE CL_OR CL_OR_L CL_OR_U); 
+**dataset &out. contains the weighted odds ratios;
+data &out.(keep=variable CL_est CL_SE OR_G OR_G_L OR_G_U); 
 	merge d61(in=ina keep=variable estimate stderr) d62 (in=inb rename=(Effect=Variable)); 
 	by Variable; 
 	if ina=1;
 
-	CL_OR=OddsRatioEst; 
-	CL_OR_L=LowerCL; 
-	CL_OR_U=UpperCL;
+	OR_G=OddsRatioEst; 
+	OR_G_L=LowerCL; 
+	OR_G_U=UpperCL;
 	CL_est=Estimate; 
 	CL_SE=StdErr;
 run;	
