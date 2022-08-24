@@ -214,7 +214,7 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
            ex=relevel(factor(d*e), ref="0")) %>%  
     ungroup() 
   
-  wfit <- clogit(case_period ~ ex + ex_tc + strata(Id) + offset(lw), data=cases_wt)
+  wfit <- clogit(case_period ~ ex + ex_tc + strata(Id) + offset(lw) , data=cases_wt)
   #coefficient of ex_tc is for time-controls/time-trend
   #coefficient of ex is for exposure-outcome
   
