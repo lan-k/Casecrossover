@@ -7,17 +7,24 @@
 **B is the number of bootstrapped replicates, default is 1000;
 
 
-data d17;
+data pt;
 	set &data.;
 	
 	e=&exposure.;
 	PtID = &Id.;
-	case=&Event.;	
+	event=&Event.;	
+	
+	unex = 1-e; *unexposed;
+	case_period  = event EQ 1;  *assuming no time controls, case period is where the event occurs;
+	control_period = 1-case_period;
+	c1= e EQ 1 and event EQ 1; *exposed case period;
+	control_period_ex = e* control_period;  *exposed control period;
+	control_period_unex = unex* control_period;  *unexposed control period;
 run;
 
 
 **remove discordant cases;
-proc summary data=d17 nway;
+proc summary data=pt nway;
 	by PtID;
 	var e;
 	output out=discordant(drop=_FREQ_ _TYPE_) max=max min=min;
@@ -29,16 +36,12 @@ data discordant(where=(discordant Eq 1) drop=min max);
 	discordant = min NE max;
 run;
 
-proc sort data=d17; 
-	by PtID descending case;
-run;
 
-data pt;
-	merge d17(in=a) discordant(in=b);
+data pt(drop=discordant);
+	merge pt(in=a) discordant(in=b);
 	by PtID;
 	if b;
 	
-	dummy=1;
 run;
 
 
@@ -52,7 +55,7 @@ run;
 
 *** bootstrapped standard errors;
 
-Proc surveyselect data=id noprint out=pt_boots
+Proc surveyselect data=id noprint out=pt_bs
 	Seed=&seed.
 	Method=urs
 	Samprate=1
@@ -71,16 +74,7 @@ run;
 data pt_bs;
 		merge pt_bs(in=a keep=replicate PtID newid) pt(in=b);
 		by PtID;
-		if a;
-		
-		unex = 1-e; *unexposed;
-		case_period  = case EQ 1;  *assuming no time controls, case period is where the event occurs;
-		control_period = 1-case_period;
-		c1= e EQ 1 and case EQ 1; *exposed case period;
-		control_period_ex = e* control_period;  *exposed control period;
-		control_period_unex = unex* control_period;  *unexposed control period;
-		
-		
+		if a;			
 run;
 
 **calculate the weights;
@@ -89,12 +83,12 @@ proc summary data=pt_bs nway;
 	class replicate newid;
 	types replicate*newid;
 	var c1 e unex control_period_ex control_period_unex;
-	output out = dperiods(drop=_TYPE_ _FREQ_) max(c1) = c1 
+	output out = dpt(drop=_TYPE_ _FREQ_) max(c1) = c1 
 		sum(e unex control_period_ex control_period_unex) = PT1CXO PT0CXO control_period_ex control_period_unex;
 run;
 
-data dperiods(keep = replicate newid c0 c1 PT01 PT10 PT1CXO PT0CXO);
-	set dperiods;
+data dpt(keep = replicate newid c0 c1 PT01 PT10 PT1CXO PT0CXO);
+	set dpt;
 	
 	c0=1-c1;
 	if c0 EQ 1 then do;  *unexposed case period;
@@ -108,28 +102,34 @@ data dperiods(keep = replicate newid c0 c1 PT01 PT10 PT1CXO PT0CXO);
 run;
 
 
-proc summary data=dperiods nway;
+proc summary data=dpt nway;
 	class replicate;
 	types replicate;
 	var c0 c1 PT10 PT10;
 	output out = n_case(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT10) = a0 a1 PT10 PT10;
 run;
 
-data dperiods;
-	merge dperiods(in=a) n_case(in=b);
+dta n_case;
+	set n_case;
+	
+	PT01m = PT01/a0;
+    PT10m = PT10/a1;
+    pi00=1;
+    pi10=PT01m/PT10m;
+	
+run;
+
+data dpt;
+	merge dpt(in=a) n_case(in=b);
 	by replicate;
 	if a;
-	
-	PT01m = PT01/a0
-    PT10m = PT10/a1
-    pi00=1
-    pi10=PT01m/PT10m
-    w0=pi00/PT0CXO
-    w1=pi10/PT1CXO
+		
+    w0=pi00/PT0CXO;
+    w1=pi10/PT1CXO;
 run;
 
 data cases_wt;
-	merge pt_bs(in=a) dperiods(in=b);
+	merge pt_bs(in=a) dpt(in=b);
 	by replicate newid;
 	if a;
 	
@@ -141,7 +141,7 @@ run;
 *weighted conditional logistic regression for each bootstrapped sample;
 proc logistic data=cases_wt descending; 
 	by replicate;
-	model case=e /offset=lw; 
+	model event=e /offset=lw; 
 	strata newid; 
 	ods output  oddsratios=est_CXO_rep(rename=(Effect=Variable));
 run;	

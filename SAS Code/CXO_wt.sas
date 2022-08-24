@@ -11,7 +11,7 @@ data d17;
 	
 	e=&exposure.;
 	PtID = &Id.;
-	case=&Event.;	
+	event=&Event.;	
 run;
 
 
@@ -118,7 +118,7 @@ run;
 
 *weighted conditional logistic regression;
 proc logistic data=d25 descending; 
-	model case=e /offset=lw; 
+	model event=e /offset=lw; 
 	strata PtID; 
 	ods output parameterestimates=d61 oddsratios=d62;
 run;
