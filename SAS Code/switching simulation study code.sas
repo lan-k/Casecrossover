@@ -1,11 +1,11 @@
 /*_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
 *GENERATION OF CASES AND CONTROLS;
 *pijv : rate of outcome occurrence per day when ex =I and z=j (ex:exposure, z: time-varying confounder)
-     When no time-varying confounder exists use pi0v as a rate when ex=i ;
+*     When no time-varying confounder exists use pi0v as a rate when ex=i ;
 *fkv: proportion of time-varying confounder when unexposed (k=0) and when exposed (k=1)
-     When no time-varying confounder exists give 0 to f0v and f1v;
-*Nnonc: Number of subjects included in 20 of each Group who start a drug each day and are not censored 
- when exposure ends. If no subject is  censored, give 20;
+*     When no time-varying confounder exists give 0 to f0v and f1v;
+*Nnonc: Number of subjects included in 20 of each Group who start a drug each day 
+*and are not censored when exposure ends. If no subject is  censored, give 20;
 *Nite: number of iterations;
 *dataset01: without time-varying confounder, RR=4, no censoring at the end of the exposure;
 *dataset02: without time-varying confounder, RR=4, 30% censoring at the end of the exposure;
@@ -27,7 +27,7 @@ data ddays; set ddays;
 call streaminit(&k);
 *day_first is the day when each subject starts a drug;
 *a subject in Group C with day_first=-238 has the earliest day_first who can become a control 
-  with discordant exposure pattern at day1;
+*  with discordant exposure pattern at day1;
 *when outcome occurs y=1, otherwise y=0;
 DO day_first=-238 to 200;
 
@@ -96,8 +96,8 @@ data dcase; set ddays; if F=1 ;
 data dcase; set dcase; by Pt_ID; if first.Pt_ID;
 data dcase(keep=ite Pt_ID day_case day_first e); set dcase; day_case=day; 
 *cases are those who had an outcome between day 1 and day 200 and eligible as a case
- with discordant exposure pattern (those who had an outcome in the first 60 days of the
- exposure period or in the 60-day post exposure period);
+* with discordant exposure pattern (those who had an outcome in the first 60 days of the
+* exposure period or in the 60-day post exposure period);
 data dcase; set dcase; if day_case>=1 and day_case<=200 and e=1;
 proc sort data=dcase; by day_case;
 *dcontrol_candidates includes those who can become a time-control between day1 and day200 while e=1;
@@ -113,15 +113,14 @@ run;
 %do i=1 %to &n_obs;
 *dcase_i is one case selected from cases in turn;
 data dcase_i(keep=ite case_id day_case); set dcase; if _n_=&i; case_id=Pt_id;
-*dcontrol_c_i includes candidates of controls for each case who are at risk, and have not yet
-been selected as a control (control=0);
+*dcontrol_c_i includes candidates of controls for each case who are at risk, and have not yet been selected as a control (control=0);
 data dcontrol_c_i; merge dcontrol_candidates(in=ina) dcase_i(in=inb); by ite; if ina=1 and inb=1;
 data dcontrol_c_i; set dcontrol_c_i; if day_case>=day_first and day_case<=day_last and control=0;
 *one control is selected for each case;
 data dcontrol_c_i; set dcontrol_c_i; 
 %let kk=%eval(6543210+&ite*1000+&i);
 call streaminit(&kk);
-x=rand“"unifor”");
+x=rand(“"unifor”");
 proc sort data= dcontrol_c_i; by x;
 data dcontrol_i; set dcontrol_c_i; if _n_=1;
 data dcontrol_i(keep=ite Pt_ID day_first day_case case_id); set dcontrol_i;
@@ -142,16 +141,16 @@ run;
 %select_control();
 
 %macro pattern();
-*extract status of exposure (and confunder) in 61 days (day_case and preceding 60days)
-  for cases and controls. One subject can be a case and a control and to make the
-  process easy to understand, the same process is repeated for cases and controls;
+*extract status of exposure (and confounder) in 61 days (day_case and preceding 60days)
+*  for cases and controls. One subject can be a case and a control and to make the
+*  process easy to understand, the same process is repeated for cases and controls;
 data dcase2(keep=ite Pt_ID day_case case); set dcase;
 proc sort data=dcase2; by Pt_ID;
 data dcase2; merge dcase2 (in=ina) ddays(in=inb); by Pt_ID; if ina=1 and inb=1;
 *dcase2 has 61 records for 60 days before day_case and 1 day at day_case;
 data dcase2; set dcase2; if day>=day_case-60 and day<=day_case;
 *dayCXO=0 for the day of outcome occurrence, dayCXO=1 for one day before the outcome occurrence,
-dayCXO=2 for two days before the outcome occurrence, -- dayCXO=60 for 60 days before the outcome occurrence;
+*dayCXO=2 for two days before the outcome occurrence, -- dayCXO=60 for 60 days before the outcome occurrence;
 %if &f0v=0 and &f1v=0 %then %do;
 data dcase2(keep=ite Pt_id case dayCXO ex day day_case); %end;
 %else %do;
@@ -220,7 +219,9 @@ run;
   REGRESSION (OR_SCL), MANTEL-HAENSZEL METHOD (OR_MH), 
    AND WEIGHTING METHOD (OR_G);
 *A variable‘'&subjec’' is specified as follows:
-“"Ncas”": no confounder, cases only (case-crossover),“"Ncontro”": no confounder, controls only,“"Nct”": no confounder, case-time-control,“"Ycas”": with confounder, cases only(case-crossover),“"Ycontro”": with confounder, controls only,“"Yct”": with confounder, case-time-control;
+*“"Ncas”": no confounder, cases only (case-crossover),“"Ncontro”": no confounder, controls only,
+*“"Nct”": no confounder, case-time-control,“"Ycas”": with confounder, cases only(case-crossover),
+*“"Ycontro”": with confounder, controls only,“"Yct”": with confounder, case-time-control;
 *&DatasetN is XX for datasetXX (XX=01, 02, ---, 08) ;
 /*_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/ */
 %macro CXO(subject, DatasetN);
