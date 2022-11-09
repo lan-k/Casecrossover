@@ -155,7 +155,7 @@ save(drugdata, cases,casetimecontrols, file="CXO.Rdata")
 
 ##conditional logistic regression
 
-cfit <- clogit(Event ~ ex + strata(Id) , data=cases) #+ offset(wt)
+cfit <- clogit(Event ~ ex + strata(Id) , data=cases,method="efron") #+ offset(wt)
 summary(cfit)
 exp(cbind(coef(cfit), confint(cfit)))
 

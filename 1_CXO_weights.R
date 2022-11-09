@@ -13,6 +13,8 @@ summary(cfit_wt)
 exp(cbind(coef(cfit_wt), confint(cfit_wt)))  ##need to use bootstrap for CIs
 
 
+##with bootstrapped SEs
+
 cfit_wt_boot <- CXO_wt_boot(cases, exposure = ex, event = Event, Id=Id, B=500)
 
 cfit_wt_boot

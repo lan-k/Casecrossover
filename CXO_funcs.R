@@ -41,7 +41,7 @@ SCL_bias <- function(data, exposure, event, Id) {
     ungroup()
   
   
-  cfit <- clogit(Event ~ ex + strata(Id) , data=cases) #+ offset(wt)
+  cfit <- clogit(Event ~ ex + strata(Id) , data=cases, method="efron") #+ offset(wt)
   
   est_scl <- exp(coef(cfit))
   
@@ -103,7 +103,7 @@ CXO_wt <- function(data, exposure, event, Id) {
            lw=log(wt)) %>%  
     ungroup() 
   
-  wfit <- clogit(Event ~ e + strata(Id) + offset(lw), data=cases_wt)
+  wfit <- clogit(Event ~ e + strata(Id) + offset(lw), data=cases_wt, method="efron")
   
   return(wfit)
   
@@ -134,7 +134,7 @@ CXO_wt <- function(data, exposure, event, Id) {
 
 
 
-CXO_wt_boot <- function(data, exposure, event, Id, B=500) {
+CXO_wt_boot <- function(data, exposure, event, Id, B=500, normal = T) {
   
   df <- data %>% 
     mutate(e={{exposure}},
@@ -148,8 +148,19 @@ CXO_wt_boot <- function(data, exposure, event, Id, B=500) {
   nvars <- dim(fitboot$t)[2]
   ci <- list()
   for (i in (1:nvars)) {
-    temp <- quantile(fitboot$t[,i],p=c(0.5, 0.025,0.975))
-    ci[[i]] <- data.frame(est=exp(temp[1]), lower=exp(temp[2]), upper=exp(temp[3]))
+    if (normal) {
+      mean = mean(fitboot$t[,i])
+      sd = sd(fitboot$t[,i])
+      est = exp(mean)
+      lower = exp(mean - 1.96*sd)
+      upper=  exp(mean + 1.96*sd)
+      ci[[i]] <- data.frame(est, lower, upper)
+    } else {
+       temp <- quantile(fitboot$t[,i],p=c(0.5, 0.025,0.975))
+       ci[[i]] <- data.frame(est=exp(temp[1]), lower=exp(temp[2]), upper=exp(temp[3]))
+    }
+    
+    
   }
   
                    
@@ -214,7 +225,8 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
            ex=relevel(factor(d*e), ref="0")) %>%  
     ungroup() 
   
-  wfit <- clogit(case_period ~ ex + ex_tc + strata(Id) + offset(lw) , data=cases_wt)
+  wfit <- clogit(case_period ~ ex + ex_tc + strata(Id) + offset(lw) , 
+                 data=cases_wt, method="efron")
   #coefficient of ex_tc is for time-controls/time-trend
   #coefficient of ex is for exposure-outcome
   
@@ -222,7 +234,7 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
   
 }
 
-.CI_tc_boot <- function(data,ii, exposure, event , Id) {
+.CI_tc_boot <- function(data,ii, exposure, event , Id, normal = T) {
   ##internal function for bootstrapping the CIs
   
   df <- data %>%
@@ -259,8 +271,17 @@ CXO_tc_wt_boot <- function(data, exposure, event, Id, B=500) {
   nvars <- dim(fitboot$t)[2]
   ci <- list()
   for (i in (1:nvars)) {
-    temp <- quantile(fitboot$t[,i],p=c(0.5, 0.025,0.975))
-    ci[[i]] <- data.frame(est=exp(temp[1]), lower=exp(temp[2]), upper=exp(temp[3]))
+    if (normal) {
+      mean = mean(fitboot$t[,i])
+      sd = sd(fitboot$t[,i])
+      est = exp(mean)
+      lower = exp(mean - 1.96*sd)
+      upper=  exp(mean + 1.96*sd)
+      ci[[i]] <- data.frame(est, lower, upper)
+    } else {
+      temp <- quantile(fitboot$t[,i],p=c(0.5, 0.025,0.975))
+      ci[[i]] <- data.frame(est=exp(temp[1]), lower=exp(temp[2]), upper=exp(temp[3]))
+    }
   }
   
   
