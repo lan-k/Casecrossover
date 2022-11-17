@@ -12,4 +12,6 @@ There are R and SAS versions of the code.
 R code examples: 1_CXO_weights.R
 SAS macro: SAS Code/CXO_wt.sas
 
+Other files are data set up scripts or functions for the weighted analysis.
+
 More examples and an R package to come! Watch this space.
