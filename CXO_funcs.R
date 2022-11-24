@@ -234,7 +234,7 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
   
 }
 
-.CI_tc_boot <- function(data,ii, exposure, event , Id, normal = T) {
+.CI_tc_boot <- function(data,ii, exposure, event , Id) {
   ##internal function for bootstrapping the CIs
   
   df <- data %>%
@@ -256,7 +256,7 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
 }
 
 
-CXO_tc_wt_boot <- function(data, exposure, event, Id, B=500) {
+CXO_tc_wt_boot <- function(data, exposure, event, Id, B=500, normal=T) {
   
   df <- data %>% 
     mutate(e={{exposure}},
