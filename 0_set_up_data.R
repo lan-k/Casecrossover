@@ -15,27 +15,30 @@ drugdata <- drugdata %>%
          ex=as.numeric(dose > 0)) %>%
   ungroup()
 
+last <- drugdata %>% 
+  group_by(Id) %>%
+  slice_tail(n=1) %>%
+  filter(futime >= fu) %>%
+  ungroup()
+  
+caseids <- last %>% 
+  filter(Event == 1)  %>%
+  mutate(tc=0) 
 
-caseids <- drugdata %>% 
-  filter(Event == 1) %>%
-  mutate(tc=0) %>%
-  filter(futime >= fu) 
 
 ##case_time controls
 
-tcids <-  drugdata %>% 
-  group_by(Id) %>%
-  slice_tail(n=1) %>%
-  filter(Event == 0) %>%
-  mutate(tc=1) %>%
-  filter(futime >= fu) 
+tcids <-  last %>% 
+  filter( Event == 0)  %>%
+  mutate(tc=1) 
+ 
 
 
 
 ##create a CXO study with 90 day time window
 
 
-cases <- left_join(drugdata, caseids %>% select(Id), by="Id") %>%
+cases <- inner_join(drugdata , caseids %>% select(Id), by="Id") %>%
   filter(futime >= fu) %>%
   group_by(Id) %>%
   mutate(minex=min(ex), maxex=max(ex),
