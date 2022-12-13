@@ -3,6 +3,7 @@ library(dplyr)
 library(survival)
 library(boot)
 library(broom)
+library(scales)
 
 
 
@@ -29,31 +30,30 @@ mhor <- function(formula, data, digits=2)  {
 
 SCL_bias <- function(data, exposure, event, Id) {
   
-  cases <- data %>% 
-    group_by(Id) %>%
+  cases <- data %>%
+    group_by(Id, .drop = T) %>%
     rename(ex={{exposure}},
            Event={{event}},
            Id={{Id}}) %>%
     mutate(
-      minex=min(ex), 
-      maxex=max(ex)) %>%  
+      minex=min(ex),
+      maxex=max(ex)) %>%
     filter(minex != maxex)  %>%  #remove concordant cases
     ungroup()
   
   
   cfit <- clogit(Event ~ ex + strata(Id) , data=cases, method="efron") #+ offset(wt)
   
-  est_scl <- exp(coef(cfit))
+  est_scl <- as.numeric(exp(coef(cfit)))
   
-  mh <- mhor(formula = Event ~ Id/ex, data=cases) 
+  mh <- mhor(formula = Event ~ Id/ex, data=cases)
   mh_OR <- as.numeric(mh$OR)
   
   
-  bias <- abs(100*( est_scl - mh_OR)/mh_OR)
+  bias <- percent(abs((as.numeric(est_scl) - mh_OR)/mh_OR),accuracy = 0.1)
+
   
-  sprintf("Bias is %.1f%%", bias)
-  
-  return(list(est_scl, mh_OR))
+  return(list( scl = est_scl, mh_or=mh_OR, bias=bias))
   
 }
 

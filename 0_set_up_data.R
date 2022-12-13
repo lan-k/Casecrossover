@@ -166,7 +166,7 @@ exp(cbind(coef(cfit), confint(cfit)))
 
 
 mhor(formula = Event ~ Id/ex, data=cases) 
-
+(bias <- SCL_bias(data=cases, exposure=ex, event=Event, Id=Id))
 
 
 
