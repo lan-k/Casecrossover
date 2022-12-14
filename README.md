@@ -10,9 +10,10 @@ Upcoming article describing methods to reduce bias due to chronic exposure with 
 
 Kubota K, Kelly TL. Bias due to within-subject exposure dependency with or without bias due to lack of pairwise exchangeability when exposure is chronic in case-crossover and case-time-control studies: A simulation study. Am J. Epidem., in press.
 
+# Code
+
 **The software is currently undergoing testing, please use with caution.**
 
-# Code
 There are R and SAS versions of the code. 
 
 R code examples: 1_CXO_weights.R
