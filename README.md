@@ -10,6 +10,8 @@ Upcoming article describing methods to reduce bias due to chronic exposure with 
 
 Kubota K, Kelly TL. Bias due to within-subject exposure dependency with or without bias due to lack of pairwise exchangeability when exposure is chronic in case-crossover and case-time-control studies: A simulation study. Am J. Epidem., in press.
 
+SAS Code for the AJE simulation study can be found [here](https://github.com/lan-k/Casecrossover/blob/main/SAS%20Code/switching%20simulation%20study%20code.sas)
+
 # Code
 
 **The software is currently undergoing testing, please use with caution.**
