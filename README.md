@@ -6,11 +6,17 @@ BMC Med Res Methodol  2021; 21:214
 
 https://bmcmedresmethodol.biomedcentral.com/articles/10.1186/s12874-021-01408-5
 
+Upcoming article describing methods to reduce bias due to chronic exposure with and without switching:
 
-There are R and SAS versions of the code. 
+Kubota K, Kelly TL. Bias due to within-subject exposure dependency with or without bias due to lack of pairwise exchangeability when exposure is chronic in case-crossover and case-time-control studies: A simulation study. Am J. Epidem., in press.
+
+# Code
+There are R and SAS versions of the code. T
 
 R code examples: 1_CXO_weights.R
 SAS macro: SAS Code/CXO_wt.sas
+
+There are separate R functions for case-crossover (CXO_wt, CXO_wt_boot) and case-time-control (CXO_tc_wt, CXO_tc_wt_boot) designs. They are available with or without a binary time-varying confounder.
 
 Other files are data set up scripts or functions for the weighted analysis.
 
@@ -25,6 +31,9 @@ The following 3 variables are required:
 Patient ID
 Binary exposure indicator
 Binary indicator for the outcome, 0 in control periods, 1 in case period for cases
+
+Optional:
+Binary time-varying confounder
 
 
 More examples and an R package to come! Watch this space.

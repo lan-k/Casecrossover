@@ -60,18 +60,18 @@ SCL_bias <- function(data, exposure, event, Id) {
 
 
 
-CXO_wt <- function(data, exposure, event, Id) {
+CXO_wt <- function(data, exposure, event, Id, tvc = NULL) {
   cases <- data %>% 
-    mutate(e={{exposure}},
+    mutate(ex={{exposure}},
            Event={{event}},
            Id={{Id}}) %>%
     group_by(Id) %>%
     mutate(
-           minex=min(e), 
-           maxex=max(e),
+           minex=min(ex), 
+           maxex=max(ex),
            case_period = Event == 1,
            control_period = Event !=1, 
-           c1=as.numeric(e==1 & case_period) #exposed case period
+           c1=as.numeric(ex==1 & case_period) #exposed case period
     ) %>%  
     filter(minex != maxex)  %>%  #remove concordant cases
     ungroup()
@@ -81,10 +81,10 @@ CXO_wt <- function(data, exposure, event, Id) {
     group_by(Id) %>%
     summarise(c1=max(c1),
               c0=1-c1, #unexposed case period
-              PT10 = ifelse(c1==1, sum((1-e)*control_period),0),  #number of unexposed control periods per person
-              PT01 = ifelse(c1==0, sum(e*control_period),0),  #number of unexposed control periods per persons
-              PT0CXO = sum(1-e, na.rm=T), # number of unexposed (case or control) periods
-              PT1CXO = sum(e, na.rm=T) # number of exposed (case or control) periods
+              PT10 = ifelse(c1==1, sum((1-ex)*control_period),0),  #number of unexposed control periods per person
+              PT01 = ifelse(c1==0, sum(ex*control_period),0),  #number of unexposed control periods per persons
+              PT0CXO = sum(1-ex, na.rm=T), # number of unexposed (case or control) periods
+              PT1CXO = sum(ex, na.rm=T) # number of exposed (case or control) periods
     ) %>%  
     mutate(a1=sum(c1, na.rm=T), #number of exposed case periods
            a0=sum(c0, na.rm=T), # number of unexposed case periods
@@ -99,11 +99,24 @@ CXO_wt <- function(data, exposure, event, Id) {
   cases_wt <- left_join(cases, dpt %>% select(Id,w0,w1), by="Id") %>% # number of unexposed case periods
     # rowwise() %>%
     ##calculate weights depending on whether period is exposed or unexposed
-    mutate(wt=ifelse(e==1, w1, w0),
-           lw=log(wt)) %>%  
+    mutate(wt=ifelse(ex==1, w1, w0),
+           lw=log(wt),
+           ex=relevel(factor(ex), ref = "0")) %>%  
     ungroup() 
   
-  wfit <- clogit(Event ~ e + strata(Id) + offset(lw), data=cases_wt, method="efron")
+  if (!is.null(substitute(tvc)) ) {
+    cases_wt <- cases_wt %>%
+      mutate(z = {{tvc}},
+             z=relevel(factor(z), ref = "0")) %>%  
+      ungroup() 
+    wfit <- clogit(case_period ~ ex + z + strata(Id) + offset(lw) ,
+                   data=cases_wt, method="efron")
+  } else {
+    
+    wfit <- clogit(case_period ~ ex  + strata(Id) + offset(lw) , 
+                  data=cases_wt, method="efron")
+  }
+  
   
   return(wfit)
   
@@ -111,7 +124,7 @@ CXO_wt <- function(data, exposure, event, Id) {
 
 
 
-.CI_boot <- function(data,ii, exposure, event , Id) {
+.CI_boot <- function(data,ii, exposure, event , Id, tvc = NULL) {
   ##internal function for bootstrapping the CIs
   
   df <- data %>%
@@ -127,24 +140,42 @@ CXO_wt <- function(data, exposure, event, Id) {
   dd <- cases[ii,] %>%
     mutate(newid = row_number()) %>%
     left_join(df, by="Id")
-  
-  cfit <- CXO_wt(dd, exposure = {{exposure}}, event = {{event}}, Id=newid)
+  if (!is.null(substitute(tvc))) {
+    cfit <- CXO_wt(dd, exposure = {{exposure}}, event = {{event}},tvc={{tvc}}, Id=newid)
+  } else {
+    cfit <- CXO_wt(dd, exposure = {{exposure}}, event = {{event}}, Id=newid)
+  }  
   return(coef(cfit))
 }
 
 
 
-CXO_wt_boot <- function(data, exposure, event, Id, B=500, normal = T) {
+CXO_wt_boot <- function(data, exposure, event, Id, tvc = NULL, B=500, normal = T) {
   
-  df <- data %>% 
-    mutate(e={{exposure}},
-           Event={{event}},
-           Id={{Id}}) %>%
-    select(e, Event, Id)
-  
-  fitboot <- boot(data=df, statistic = .CI_boot, 
-                  exposure = e, event = Event, Id=Id,
-                  R=B)
+  if (!is.null(substitute(tvc))) {
+    df <- data %>% 
+      mutate(ex={{exposure}},
+             Event={{event}},
+             Id={{Id}},
+             z={{tvc}}) %>%
+      select(ex, Event, Id, z)
+    
+    fitboot <- boot(data=df, statistic = .CI_boot, 
+                    exposure = ex, event = Event, Id=Id, tvc=z,
+                    R=B)
+    
+  } else {
+    df <- data %>% 
+      mutate(ex={{exposure}},
+             Event={{event}},
+             Id={{Id}}) %>%
+      select(ex, Event, Id)
+    
+    fitboot <- boot(data=df, statistic = .CI_boot, 
+                    exposure = ex, event = Event, Id=Id, 
+                    R=B)
+   
+  }
   nvars <- dim(fitboot$t)[2]
   ci <- list()
   for (i in (1:nvars)) {
@@ -174,24 +205,21 @@ CXO_wt_boot <- function(data, exposure, event, Id, B=500, normal = T) {
 }
 
 
-
-
-
-CXO_tc_wt <- function(data, exposure, event, Id) {
+CXO_tc_wt <- function(data, exposure, event, Id, tvc = NULL) {
 # tc = 1 for time-controls, 1 for cases in all periods
 # data is assumed to be sorted so that the case period is the last row per Id
   case_tc <- data %>% 
-    mutate(e={{exposure}},
+    mutate(ex={{exposure}},
            Event={{event}},
            Id={{Id}}) %>%
     group_by(Id) %>%
     mutate(period = row_number(),
-      minex=min(e), 
-      maxex=max(e),
+      minex=min(ex), 
+      maxex=max(ex),
       d=max(Event), #d=1 for cases and 0 for time-controls
       case_period = as.numeric(period == max(period)),
       control_period = 1- case_period, 
-      c1=as.numeric(e==1 & case_period) #exposed case period
+      c1=as.numeric(ex==1 & case_period) #exposed case period
     ) %>%  
     filter(minex != maxex)  %>%  #remove concordant cases
     ungroup()
@@ -201,10 +229,10 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
     group_by(Id) %>%
     summarise(c1=max(c1),
               c0=1-c1, #unexposed case period
-              PT10 = ifelse(c1==1, sum((1-e)*control_period),0),  #number of unexposed control periods per person
-              PT01 = ifelse(c1==0, sum(e*control_period),0),  #number of unexposed control periods per persons
-              PT0CXO = sum(1-e, na.rm=T), # number of unexposed (case or control) periods
-              PT1CXO = sum(e, na.rm=T) # number of exposed (case or control) periods
+              PT10 = ifelse(c1==1, sum((1-ex)*control_period),0),  #number of unexposed control periods per person
+              PT01 = ifelse(c1==0, sum(ex*control_period),0),  #number of unexposed control periods per persons
+              PT0CXO = sum(1-ex, na.rm=T), # number of unexposed (case or control) periods
+              PT1CXO = sum(ex, na.rm=T) # number of exposed (case or control) periods
     ) %>%  
     mutate(n1=sum(c1, na.rm=T), #number of exposed case periods for both cases and time-controls
            n0=sum(c0, na.rm=T), # number of unexposed case periods for both cases and time-controls
@@ -219,14 +247,26 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
   cases_wt <- left_join(case_tc, dpt %>% select(Id, w0,w1), by="Id") %>% # number of unexposed case periods
     # rowwise() %>%
     ##calculate weights depending on whether period is exposed or unexposed
-    mutate(wt=ifelse(e==1, w1, w0),
+    mutate(wt=ifelse(ex==1, w1, w0),
            lw=log(wt),
-           ex_tc=relevel(factor(e), ref="0"),
-           ex=relevel(factor(d*e), ref="0")) %>%  
+           ex_tc=relevel(factor(ex), ref="0"),
+           ex=relevel(factor(d*ex), ref="0")) %>%  
     ungroup() 
   
-  wfit <- clogit(case_period ~ ex + ex_tc + strata(Id) + offset(lw) , 
-                 data=cases_wt, method="efron")
+  if (!is.null(substitute(tvc)) ) {
+    cases_wt <- cases_wt %>%
+      mutate(z_tc={{tvc}},
+             z=relevel(factor(d*z_tc), ref = "0"),
+             z_tc=relevel(factor(z_tc), ref = "0")) %>%  
+      ungroup() 
+    wfit <- clogit(case_period ~ ex  + ex_tc + z + z_tc + strata(Id) + offset(lw) , 
+                   data=cases_wt, method="efron")
+  } else {
+    
+    wfit <- clogit(case_period ~ ex + ex_tc + strata(Id) + offset(lw) , 
+                   data=cases_wt, method="efron")
+  }
+  
   #coefficient of ex_tc is for time-controls/time-trend
   #coefficient of ex is for exposure-outcome
   
@@ -234,7 +274,7 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
   
 }
 
-.CI_tc_boot <- function(data,ii, exposure, event , Id) {
+.CI_tc_boot <- function(data,ii, exposure, event , Id, tvc= NULL) {
   ##internal function for bootstrapping the CIs
   
   df <- data %>%
@@ -250,23 +290,42 @@ CXO_tc_wt <- function(data, exposure, event, Id) {
   dd <- cases[ii,] %>%
     mutate(newid = row_number()) %>%
     left_join(df, by="Id")
+
+  if (!is.null(substitute(tvc))) {
+    cfit <- CXO_tc_wt(dd, exposure = {{exposure}}, event = {{event}},tvc={{tvc}}, Id=newid)
+  } else {
+    cfit <- CXO_tc_wt(dd, exposure = {{exposure}}, event = {{event}}, Id=newid)
+  }  
+                      
   
-  cfit <- CXO_tc_wt(dd, exposure = {{exposure}}, event = {{event}}, Id=newid)
   return(coef(cfit))
 }
 
 
-CXO_tc_wt_boot <- function(data, exposure, event, Id, B=500, normal=T) {
+CXO_tc_wt_boot <- function(data, exposure, event, Id, tvc=NULL, B=500, normal=T) {
   
-  df <- data %>% 
-    mutate(e={{exposure}},
-           Event={{event}},
-           Id={{Id}}) %>%
-    select(e, Event, Id)
-  
-  fitboot <- boot(data=df, statistic = .CI_tc_boot, 
-                  exposure = e, event = Event, Id=Id,
-                  R=B)
+  if (!is.null(substitute(tvc))) {
+    df <- data %>% 
+      mutate(ex={{exposure}},
+             Event={{event}},
+             Id={{Id}},
+             z={{tvc}}) %>%
+      select(ex, Event, Id, z)
+    
+    fitboot <- boot(data=df, statistic = .CI_tc_boot, 
+                    exposure = ex, event = Event, Id=Id, tvc=z,
+                    R=B)
+  } else {
+    df <- data %>% 
+      mutate(ex={{exposure}},
+             Event={{event}},
+             Id={{Id}}) %>%
+      select(ex, Event, Id)
+    
+    fitboot <- boot(data=df, statistic = .CI_tc_boot, 
+                    exposure = ex, event = Event, Id=Id, 
+                    R=B)
+  }
   
   nvars <- dim(fitboot$t)[2]
   ci <- list()
