@@ -11,7 +11,7 @@ Upcoming article describing methods to reduce bias due to chronic exposure with 
 Kubota K, Kelly TL. Bias due to within-subject exposure dependency with or without bias due to lack of pairwise exchangeability when exposure is chronic in case-crossover and case-time-control studies: A simulation study. Am J. Epidem., in press.
 
 # Code
-There are R and SAS versions of the code. T
+There are R and SAS versions of the code. 
 
 R code examples: 1_CXO_weights.R
 SAS macro: SAS Code/CXO_wt.sas
@@ -40,8 +40,9 @@ Binary time-varying confounder
 ## Outputs
 
 CXO_wt, CXO_tc_wt output a 'clogit' object.
-CXO_wt_boot, CXO_tc_wt_boot output columns:
+CXO_wt_boot, CXO_tc_wt_boot output the following columns:
 
+- Variable: Covariates in model
 - est0: OR from weighted conditional logistic regression
 - est: bootstrapped OR using mean if normal approximation is used, median otherwise
 - lower: bootstrapped lower 95% CI from normal approximation if used, 2.5th quantile otherwise

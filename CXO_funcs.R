@@ -150,7 +150,7 @@ CXO_wt <- function(data, exposure, event, Id, tvc = NULL) {
 
 
 
-CXO_wt_boot <- function(data, exposure, event, Id, tvc = NULL, B=500, normal = T) {
+CXO_wt_boot <- function(data, exposure, event, Id, tvc = NULL, B=500, normal = TRUE) {
   
   if (!is.null(substitute(tvc))) {
     df <- data %>% 
@@ -302,7 +302,7 @@ CXO_tc_wt <- function(data, exposure, event, Id, tvc = NULL) {
 }
 
 
-CXO_tc_wt_boot <- function(data, exposure, event, Id, tvc=NULL, B=500, normal=T) {
+CXO_tc_wt_boot <- function(data, exposure, event, Id, tvc=NULL, B=500, normal=TRUE) {
   
   if (!is.null(substitute(tvc))) {
     df <- data %>% 
