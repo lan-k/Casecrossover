@@ -27,6 +27,8 @@ The data should be structured with one row per period per person. The data shoul
 
 There should be the same number of control periods and therefore rows of data for each person.
 
+## Inputs
+
 The following 3 variables are required:
 Patient ID
 Binary exposure indicator
@@ -34,6 +36,23 @@ Binary indicator for the outcome, 0 in control periods, 1 in case period for cas
 
 Optional:
 Binary time-varying confounder
+
+## Outputs
+
+CXO_wt, CXO_tc_wt output a 'clogit' object.
+CXO_wt_boot, CXO_tc_wt_boot output columns:
+
+- est0: OR from weighted conditional logistic regression
+- est: bootstrapped OR using mean if normal approximation is used, median otherwise
+- lower: bootstrapped lower 95% CI from normal approximation if used, 2.5th quantile otherwise
+- upper: bootstrapped upper 95% CI from normal approximation if used, 97.5th quantile otherwise
+
+Output variables (rows) are:
+
+- ex: exposure of cases
+- ex_tc: exposure of time controls (if used)
+- z: time-varying confounder of cases (if used)
+- z_tc: time-varying confounder of time controls (if used)
 
 
 More examples and an R package to come! Watch this space.
