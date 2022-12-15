@@ -16,7 +16,6 @@ data pt;
 	e=&exposure.;
 	PtID = &Id.;
 	event=&Event.;	
-	period=&period.;
 run;
 
 
@@ -44,7 +43,7 @@ run;
 
 data pt;
 	set pt;
-	
+	by PtID;
 	unex = 1-e; *unexposed;
 	if last.PtID then case_period = 1;  *case period is the last period per ID for both cases and time-controls;
 	else case_period = 0; 
@@ -66,7 +65,7 @@ proc summary data=pt nway;
 		sum(e unex control_period_ex control_period_unex) = PT1CXO PT0CXO control_period_ex control_period_unex;
 run;
 
-data dpt(keep = PtID c0 c1 PT01 PT10 PT1CXO PT0CXO);
+data dpt(keep = PtID c0 c1 PT01 PT10 PT1CXO PT0CXO dummy);
 	set dpt;
 	
 	c0=1-c1;
@@ -85,8 +84,8 @@ run;
 
 
 proc summary data=dpt nway;
-	var c0 c1 PT10 PT10;
-	output out = n_tc(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT10) = n0 n1 PT10 PT10;
+	var c0 c1 PT10 PT01;
+	output out = n_tc(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT01) = n0 n1 PT10 PT01;
 run;
 
 **n0=a0+b0 = number of cases and time controls with an unexposed case period;
@@ -130,13 +129,13 @@ run;
 proc logistic data=cases_wt descending; 
 	model case_period=ex ex_tc /offset=lw; 
 	strata PtID; 
-	ods output  oddsratios=OR(rename=(Effect=Variable));
+	ods output  oddsratios=OR;
 run;
 
 
 
 **dataset &out. contains the weighted OR and 95% CI without bootstrapping;
-data &out.(keep=variable CL_est CL_SE OR_G OR_G_L OR_G_U); 
+data &out.(keep=variable OR_G OR_G_L OR_G_U); 
 	set OR(rename=(Effect=Variable)); 
 
 	OR_G=OddsRatioEst; 

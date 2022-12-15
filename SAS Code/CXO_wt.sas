@@ -125,7 +125,7 @@ run;
 
 
 **dataset &out. contains the weighted odds ratios;
-data &out.(keep=variable CL_est CL_SE OR_G OR_G_L OR_G_U); 
+data &out.(keep=variable CL_est CL_SE OR_G OR_G_L OR_G_U where=(Variable NE "lw")); 
 	merge d61(in=ina keep=variable estimate stderr) d62 (in=inb rename=(Effect=Variable)); 
 	by Variable; 
 	if ina=1;

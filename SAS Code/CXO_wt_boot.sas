@@ -105,8 +105,8 @@ run;
 proc summary data=dpt nway;
 	class replicate;
 	types replicate;
-	var c0 c1 PT10 PT10;
-	output out = n_case(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT10) = a0 a1 PT10 PT10;
+	var c0 c1 PT10 PT01;
+	output out = n_case(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT01) = a0 a1 PT10 PT01;
 run;
 
 dta n_case;

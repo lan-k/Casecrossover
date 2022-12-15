@@ -170,12 +170,12 @@ mhor(formula = Event ~ Id/ex, data=cases)
 
 
 ## simulation data
+simfiles <- paste0("Data/sampdata_scenario0", 1:8, ".csv")
+tempdata <- lapply(simfiles, read.csv)
+
 for (i in 1:8) {
-  fn=paste0("Data/sampdata_scenario0", i, ".csv")
   
-  temp <- read.csv(fn)
-  
-  temp <- temp %>% 
+  temp <- tempdata[[i]] %>% 
     mutate(event = case_period * (1-tc)) %>%
     group_by(Pt_ID) %>%
     mutate(period=row_number()) %>%
@@ -189,13 +189,12 @@ for (i in 1:8) {
       select(Pt_ID, ex, event, period, z, tc)
   }
   
-  assign(paste0("ctcsim", i), temp)
-    
+  simdata[[i]] = assign(paste0("ctcsim", i), temp)
                
 }
 
-save(ctcsim1, ctcsim2, ctcsim3, ctcsim4, ctcsim5, ctcsim6, ctcsim7, ctcsim8,
-     file="Data/ctcsim.Rdata")
+save(simdata,file="Data/ctcsim.Rdata")
+
 
 
 

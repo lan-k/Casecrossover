@@ -122,8 +122,8 @@ proc summary data=dpt nway;
 	class replicate;
 	types replicate;
 
-	var c0 c1 PT10 PT10;
-	output out = n_tc(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT10) = n0 n1 PT10 PT10;
+	var c0 c1 PT10 PT01;
+	output out = n_tc(drop=_TYPE_ _FREQ_) sum(c0 c1 PT10 PT01) = n0 n1 PT10 PT01;
 run;
 
 **n0=a0+b0 = number of cases and time controls with an unexposed case period for every replicate;
@@ -140,8 +140,8 @@ data n_tc;
 run;
 
 
-data dpt(drop=dummy);
-	merge dpt(in=a keep=newid PtID c0 c1 PT1CXO PT0CXO dummy) n_tc(in=b keep=replicate pi00 pi10);
+data dpt;
+	merge dpt(in=a keep=newid PtID c0 c1 PT1CXO PT0CXO replicate) n_tc(in=b keep=replicate pi00 pi10);
 	if a;
 	by replicate;
 	
