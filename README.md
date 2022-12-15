@@ -10,7 +10,7 @@ Upcoming article describing methods to reduce bias due to chronic exposure with 
 
 Kubota K, Kelly TL. Bias due to within-subject exposure dependency with or without bias due to lack of pairwise exchangeability when exposure is chronic in case-crossover and case-time-control studies: A simulation study. Am J. Epidem., in press.
 
-SAS Code for the AJE simulation study can be found [here](https://github.com/lan-k/Casecrossover/blob/main/SAS%20Code/switching%20simulation%20study%20code.sas)
+SAS Code for the AJE simulation study can be found [here.](https://github.com/lan-k/Casecrossover/blob/main/SAS%20Code/switching%20simulation%20study%20code.sas)
 
 # Code
 
@@ -35,16 +35,19 @@ There should be the same number of control periods and therefore rows of data fo
 ## Inputs
 
 The following 3 variables are required:
-Patient ID
-Binary exposure indicator
-Binary indicator for the outcome, 0 in control periods, 1 in case period for cases
+
+- Patient ID
+- Binary exposure indicator
+- Binary indicator for the outcome, 0 in control periods, 1 in case period for cases
 
 Optional:
-Binary time-varying confounder
+
+- Binary time-varying confounder
 
 ## Outputs
 
-CXO_wt, CXO_tc_wt output a 'clogit' object.
+CXO_wt, CXO_tc_wt: output a 'clogit' object. 95% CIs constructed from this may be too narrow. It is preferable to use the bootstrapped versions.
+
 CXO_wt_boot, CXO_tc_wt_boot output the following columns:
 
 - Variable: Covariates in model
