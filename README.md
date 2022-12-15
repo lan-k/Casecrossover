@@ -18,7 +18,10 @@ SAS Code for the AJE simulation study can be found [here.](https://github.com/la
 
 There are R and SAS versions of the code. 
 
+R functions:CXO_funcs.R
+
 R code examples: 1_CXO_weights.R
+
 SAS macro: SAS Code/CXO_wt.sas
 
 There are separate R functions for case-crossover (CXO_wt, CXO_wt_boot) and case-time-control (CXO_tc_wt, CXO_tc_wt_boot) designs. They are available with or without a binary time-varying confounder.
