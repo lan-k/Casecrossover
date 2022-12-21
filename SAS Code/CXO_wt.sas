@@ -16,7 +16,7 @@ run;
 
 
 proc sort data=d17; 
-	by PtID descending case;
+	by PtID descending event;
 run;
 
 data d23; 
