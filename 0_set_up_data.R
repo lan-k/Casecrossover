@@ -4,6 +4,7 @@ library(survival)
 library(pubh)
 library(ccoptimalmatch)
 library(ggplot2)
+library(janitor)
 
 load(file="drugdata.rds")  #drugdata from the WCE package
 source("CXO_funcs.R")
@@ -174,19 +175,20 @@ simfiles <- paste0("Data/sampdata_scenario0", 1:8, ".csv")
 tempdata <- lapply(simfiles, read.csv)
 
 for (i in 1:8) {
-  
+  print(i)
   temp <- tempdata[[i]] %>% 
-    mutate(event = case_period * (1-tc)) %>%
-    group_by(Pt_ID) %>%
+    janitor::clean_names() %>%
+    # mutate(event = case_period * (1-tc)) %>%
+    group_by(pt_id) %>%
     mutate(period=row_number()) %>%
     ungroup() 
   
   if (i < 5) {
     temp <- temp %>%
-    select(Pt_ID, ex, event, period, tc)
+    select(pt_id, ex, event, period)
   } else {
     temp <- temp %>%
-      select(Pt_ID, ex, event, period, z, tc)
+      select(pt_id, ex, event, period, z)
   }
   
   simdata[[i]] = assign(paste0("ctcsim", i), temp)

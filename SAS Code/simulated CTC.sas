@@ -1,23 +1,22 @@
-libname sim "/home/lankelly0/CXO/Data";
 
-%include "/home/lankelly0/CXO/SAS Code/CXO_wt.sas";
-%include "/home/lankelly0/CXO/SAS Code/CXO_tc_wt.sas";
+%include "CXO_wt.sas";
+%include "CXO_tc_wt.sas";
 
 
-proc import datafile="/home/lankelly0/CXO/Data/sampdata_scenario01.csv" out=dat
+proc import datafile="../Data/sampdata_scenario01.csv" out=dat
 		dbms=csv replace;
 
 run;
 
-data dat;
-	set dat;
-	
-	event = case_period * (1-tc);
+*cases only;
+data caseids;
+	set dat(where=(event EQ 1));
 run;
 
-
 data cases;
-	set dat(where=(tc NE 1));
+	merge dat(in=a) caseids(in=b);
+	by Pt_ID;
+	if b;
 run;
 
 %CXO_wt(cases, exposure=ex, event=event, Id = Pt_ID)
@@ -25,18 +24,14 @@ run;
 proc print data=out; run;
 
 
+*case-time-controls;
 %macro test_sim(i);
 
-	proc import datafile="/home/lankelly0/CXO/Data/sampdata_scenario0&i..csv" out=dat
+	proc import datafile="../Data/sampdata_scenario0&i..csv" out=dat
 		dbms=csv replace;
 	run;
 	
-	data dat;
-		set dat;
-	
-		event = case_period * (1-tc);
-	run;
-	
+
 	%CXO_tc_wt(dat, exposure=ex, event=event, Id = Pt_ID)
 	
 	%put &i.;

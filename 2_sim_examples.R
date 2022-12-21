@@ -14,9 +14,9 @@ source("CXO_funcs.R")
 
 OR_est <- function(df, i) {
   if (i < 5) {
-    temp = CXO_tc_wt(data=df, exposure = ex, event = event, Id=Pt_ID)
+    temp = CXO_tc_wt(data=df, exposure = ex, event = event, Id=pt_id)
   } else {
-    temp = CXO_tc_wt(data=df, exposure = ex, event = event, Id=Pt_ID, tvc = z)
+    temp = CXO_tc_wt(data=df, exposure = ex, event = event, Id=pt_id, tvc = z)
   }
   
   return(round(exp(temp$coefficients), digits=3))
