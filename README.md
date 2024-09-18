@@ -1,4 +1,8 @@
 # Casecrossover
+Note: An R package has been developed at https://github.com/lan-k/CXOwt.
+
+Please use this repository for the latest version of the code.
+
 This repository contains software for weighted case-crossover analysis described in 
 
 Kubota K, Kelly TL, Sato T, Pratt N, Roughead E, Yamaguchi T. A novel weighting method to remove bias from within-subject exposure dependency in case-crossover studies. 
@@ -66,4 +70,4 @@ Output variables (rows) are:
 - z: time-varying confounder of cases (if used)
 - z_tc: time-varying confounder of time controls (if used)
 
-More examples and an R package to come! Watch this space.
+
