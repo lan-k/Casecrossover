@@ -1,0 +1,46 @@
+                                     
+---------------------------  --------
+Number of Observations Read        99
+Number of Observations Used        99
+
+             Response Profile              
+  Probability modeled is case_period='1'   
+
+Ordered Value  case_period  Total Frequency
+-------------  -----------  ---------------
+            1  0                         90
+            2  1                          9
+
+                                             
+---------------------------------------------
+Convergence criterion (GCONV=1E-8) satisfied.
+
+The LOGISTIC Procedure
+Response Variable: case_period
+
+Criterion     Value
+---------  --------
+AIC          36.543
+-2 Log L     32.543
+SC           41.734
+
+            Analysis of Maximum Likelihood Estimates            
+
+Parameter  Estimate  Standard Error  Wald Chi-Square  Pr > ChiSq
+---------  --------  --------------  ---------------  ----------
+ex          11.8210         43.7992           0.0728      0.7872
+ex_tc       -9.4925         43.7814           0.0470      0.8284
+
+                     Odds Ratio Estimates                     
+
+Effect    Point Estimate  95% Wald CL Lower  95% Wald CL Upper
+--------  --------------  -----------------  -----------------
+ex              >999.999             <0.001           >999.999
+ex_tc             <0.001             <0.001           >999.999
+
+
+  Obs  variable               OR_G  OR_G_L                                       OR_G_U
+-----  --------  -----------------  ------  -------------------------------------------
+    1  ex        136083.7451324904       0  2604584544075831672882263733946936146788352
+    2  ex_tc          0.0000754127       0           1393850181164755814750774802513920
+

@@ -1,0 +1,20 @@
+{
+  "_captured_at": "2026-07-24T04:10:07.141795+00:00",
+  "_captured_run_id": "r_8b017df5821143a9954aae3dd0392f4f",
+  "status": "ok",
+  "exit_code": 0,
+  "log_contains": [
+    "NOTE: Processing inline DATALINES (440 lines)",
+    "NOTE: PROC SORT statement used.",
+    "NOTE: Using Python statsmodels.api.Logit",
+    "NOTE: Wrote out (1 rows, 6 columns)."
+  ],
+  "log_does_not_contain": [
+    "ERROR:",
+    "[JENNER-ERROR"
+  ],
+  "diagnostics": {
+    "parse_warnings": [],
+    "runtime_warnings": []
+  }
+}

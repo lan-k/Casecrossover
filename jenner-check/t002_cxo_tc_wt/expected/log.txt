@@ -1,0 +1,103 @@
+NOTE: Option OBS changed to 100.
+NOTE: DATA dat
+
+NOTE: Processing inline DATALINES (99 lines)
+
+NOTE: Read 99 rows from DATALINES.
+NOTE: Wrote dat (99 rows, 3 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: DATA pt
+
+
+NOTE: Read 99 rows from dat.
+NOTE: Wrote pt (99 rows, 5 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC MEANS
+NOTE: Output dataset discordant has 9 observations and 4 variables.
+NOTE: PROC MEANS statement used.
+NOTE: DATA discordant
+
+
+NOTE: Read 9 rows from discordant.
+NOTE: Wrote discordant (9 rows, 3 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: DATA pt
+
+NOTE: Stream 1 processed 99 rows, max BY-group size: 11 (O(1) memory verified)
+NOTE: Stream 2 processed 9 rows, max BY-group size: 1 (O(1) memory verified)
+
+NOTE: Wrote pt (99 rows, 6 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: DATA pt
+
+
+NOTE: Read 99 rows from pt.
+NOTE: Wrote pt (99 rows, 12 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC MEANS
+NOTE: Output dataset dpt has 9 observations and 6 variables.
+NOTE: PROC MEANS statement used.
+NOTE: DATA dpt
+
+
+NOTE: Read 9 rows from dpt.
+NOTE: Wrote dpt (9 rows, 8 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC MEANS
+NOTE: Output dataset n_tc has 1 observations and 4 variables.
+NOTE: PROC MEANS statement used.
+NOTE: DATA n_tc
+
+
+NOTE: Read 1 rows from n_tc.
+NOTE: Wrote n_tc (1 rows, 9 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: DATA dpt
+
+NOTE: Stream 1 processed 9 rows, max BY-group size: 9 (O(1) memory verified)
+NOTE: Stream 2 processed 1 rows, max BY-group size: 1 (O(1) memory verified)
+
+NOTE: Wrote dpt (9 rows, 9 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: DATA cases_wt
+
+NOTE: Stream 1 processed 99 rows, max BY-group size: 11 (O(1) memory verified)
+NOTE: Stream 2 processed 9 rows, max BY-group size: 1 (O(1) memory verified)
+
+NOTE: Wrote cases_wt (99 rows, 18 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC LOGISTIC data=cases_wt
+
+NOTE: Using Python statsmodels.api.Logit version 0.14.6
+NOTE: ODS plot written: logistic_oddsratio.spec.json
+NOTE: PROC LOGISTIC ODS Graphics generated.
+NOTE: PROC LOGISTIC completed. Results written to: ./ods_output/logistic_results.spec.json
+NOTE: DATA out
+
+
+NOTE: Read 2 rows from or.
+NOTE: Wrote out (2 rows, 4 columns).
+NOTE: DATA elapsed:
+  wall  0.00 seconds
+  cpu   0.00 seconds
+NOTE: PROC PRINT data=out
+
+NOTE: PROC PRINT completed: 2 observations printed, 4 variables

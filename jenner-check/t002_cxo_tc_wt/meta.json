@@ -1,0 +1,7 @@
+{
+  "bundle": "t002_cxo_tc_wt",
+  "source_file": "SAS Code/CXO_tc_wt.sas",
+  "source_blob_sha": "70aa020ad4cf7029a44da67b2fbfbe7870f2433e",
+  "source_commit": "36350c2cb157587f2c914f9c06e232e17cec9ac7",
+  "notes": "CXO_tc_wt macro (verbatim) for weighted case-time-control analysis: removes discordant cases, computes weights with PROC SUMMARY, and fits weighted conditional logistic regression for ex and ex_tc. Sample data are 5 case + 4 time-control patients' rows drawn from the repo's Data/sampdata_scenario01.csv; a caller data step and %CXO_tc_wt invocation were added. options obs=100 caps the captured run."
+}

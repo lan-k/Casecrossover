@@ -1,0 +1,20 @@
+{
+  "_captured_at": "2026-07-24T04:10:07.141795+00:00",
+  "_captured_run_id": "r_b5747f8c3f3a46bbb9fc523c08f80c13",
+  "status": "ok",
+  "exit_code": 0,
+  "log_contains": [
+    "NOTE: Processing inline DATALINES (99 lines)",
+    "NOTE: PROC MEANS statement used.",
+    "NOTE: Using Python statsmodels.api.Logit",
+    "NOTE: PROC LOGISTIC completed."
+  ],
+  "log_does_not_contain": [
+    "ERROR:",
+    "[JENNER-ERROR"
+  ],
+  "diagnostics": {
+    "parse_warnings": [],
+    "runtime_warnings": []
+  }
+}
