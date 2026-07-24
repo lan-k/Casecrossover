@@ -1,0 +1,7 @@
+{
+  "bundle": "t001_cxo_wt",
+  "source_file": "SAS Code/CXO_wt.sas",
+  "source_blob_sha": "e99a2ae6378acf00ddc597cddb39e6575df5249a",
+  "source_commit": "36350c2cb157587f2c914f9c06e232e17cec9ac7",
+  "notes": "CXO_wt macro (verbatim) for weighted case-crossover analysis: builds per-patient weights and runs weighted conditional logistic regression via PROC LOGISTIC (STRATA + OFFSET). Sample data are 40 case patients' rows (Pt_ID, ex, event) drawn from the repo's Data/sampdata_scenario01.csv; a caller data step and %CXO_wt invocation were added. options obs=100 caps the captured run."
+}

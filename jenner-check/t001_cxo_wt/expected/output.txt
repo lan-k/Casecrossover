@@ -1,0 +1,43 @@
+                                     
+---------------------------  --------
+Number of Observations Read        99
+Number of Observations Used        99
+
+            Response Profile            
+    Probability modeled is event='1'    
+
+Ordered Value  event     Total Frequency
+-------------  --------  ---------------
+            1  0                      90
+            2  1                       9
+
+                                             
+---------------------------------------------
+Convergence criterion (GCONV=1E-8) satisfied.
+
+The LOGISTIC Procedure
+Response Variable: event
+
+Criterion     Value
+---------  --------
+AIC          40.498
+-2 Log L     38.498
+SC           43.093
+
+            Analysis of Maximum Likelihood Estimates            
+
+Parameter  Estimate  Standard Error  Wald Chi-Square  Pr > ChiSq
+---------  --------  --------------  ---------------  ----------
+e            1.7361          0.8072           4.6253      0.0315
+
+                     Odds Ratio Estimates                     
+
+Effect    Point Estimate  95% Wald CL Lower  95% Wald CL Upper
+--------  --------------  -----------------  -----------------
+e                  5.675              1.166             27.612
+
+
+  Obs  variable        CL_est         CL_SE          OR_G        OR_G_L         OR_G_U
+-----  --------  ------------  ------------  ------------  ------------  -------------
+    1  e         1.7360867325  0.8072352307  5.6750917604  1.1664147794  27.6116755873
+
